@@ -4,7 +4,8 @@
   "description": "Learning and practice with WebSockets + Socket.io",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon --inspect ./server.js"
   },
   "repository": {
     "type": "git",

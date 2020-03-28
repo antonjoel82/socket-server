@@ -6,7 +6,12 @@ module.exports = function(key) {
   const members = new Map()
   let chatHistory = []
 
+  function getKey() {
+    return key
+  }
+
   function broadcastMessage(message) {
+    addEntry(message) // TODO: remove this when I implement handle event
     members.forEach((member) => member.emit('message', message))
   }
 
@@ -34,6 +39,7 @@ module.exports = function(key) {
   }
 
   return {
+    getKey,
     broadcastMessage,
     addEntry,
     getChatHistory,

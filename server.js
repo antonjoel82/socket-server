@@ -3,7 +3,7 @@ const index = require('./routes/index')
 
 const ClientManager = require('./ClientManager')
 const RoomManager = require('./RoomManager')
-// const makeHandlers = require('./handlers')
+const makeHandlers = require('./handlers')
 
 const SERVER_PORT = process.env.PORT || 9999
 const app = express()
@@ -14,20 +14,20 @@ const io = require('socket.io')(server)
 const clientManager = ClientManager()
 const roomManager = RoomManager()
 
-const testRoom = roomManager.createNewRoom()
+const testRoom = roomManager.createNewRoom('testRoom')
 
 app.use(index)
 
 io.on('connection', function(client) {
-  // const {
-  //   handleRegister,
-  //   handleJoin,
-  //   handleLeave,
-  //   handleMessage,
-  //   handleGetRooms,
-  //   handleGetAvailableUsers,
-  //   handleDisconnect
-  // } = makeHandlers(client, clientManager, chatroomManager)
+  const {
+    //   handleRegister,
+    handleJoin
+    //   handleLeave,
+    //   handleMessage,
+    //   handleGetRooms,
+    //   handleGetAvailableUsers,
+    //   handleDisconnect
+  } = makeHandlers(client, clientManager, roomManager)
 
   testRoom.addMember(client)
 
@@ -36,7 +36,7 @@ io.on('connection', function(client) {
 
   // client.on('register', handleRegister)
 
-  // client.on('join', handleJoin)
+  client.on('join', handleJoin)
 
   // client.on('leave', handleLeave)
 

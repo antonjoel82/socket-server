@@ -5,11 +5,11 @@ module.exports = function() {
   const rooms = new Map()
 
   function addRoom(room) {
-    rooms.set(room.id, room)
+    rooms.set(room.getKey(), room)
   }
 
   function removeRoom(room) {
-    rooms.delete(room.id)
+    rooms.delete(room.getKey())
   }
 
   function getRoom(roomKey) {
@@ -20,8 +20,8 @@ module.exports = function() {
    * Generates a new room with random key and adds it to the Map
    * Returns the newly created room.
    */
-  function createNewRoom() {
-    let roomKey = undefined
+  function createNewRoom(_roomKey) {
+    let roomKey = _roomKey || undefined
 
     while (roomKey === undefined || rooms.has(roomKey)) {
       roomKey = generateRandStr()
