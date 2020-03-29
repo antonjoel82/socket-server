@@ -10,8 +10,11 @@ module.exports = function(key) {
     return key
   }
 
+  /**
+   * TODO! All members get all messages and individual rooms don't remember their histories
+   */
+
   function broadcastMessage(message) {
-    addEntry(message) // TODO: remove this when I implement handle event
     members.forEach((member) => member.emit('message', message))
   }
 

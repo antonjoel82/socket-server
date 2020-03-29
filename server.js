@@ -14,38 +14,35 @@ const io = require('socket.io')(server)
 const clientManager = ClientManager()
 const roomManager = RoomManager()
 
-const testRoom = roomManager.createNewRoom('testRoom')
+// const testRoom = roomManager.createNewRoom('testRoom')
 
 app.use(index)
 
 io.on('connection', function(client) {
   const {
-    //   handleRegister,
-    handleJoin
+    handleRegister,
+    handleJoin,
+    handleNewRoom,
     //   handleLeave,
-    //   handleMessage,
+    handleMessage
     //   handleGetRooms,
     //   handleGetAvailableUsers,
     //   handleDisconnect
   } = makeHandlers(client, clientManager, roomManager)
 
-  testRoom.addMember(client)
+  // testRoom.addMember(client)
 
   console.log('client connected...', client.id)
-  // clientManager.addClient(client)
 
-  // client.on('register', handleRegister)
+  client.on('register', handleRegister)
 
   client.on('join', handleJoin)
 
+  client.on('newRoom', handleNewRoom)
+
   // client.on('leave', handleLeave)
 
-  client.on('message', ({ roomName, message }, cb) => {
-    console.log(`Message from ${client.id} in Room '${roomName}': ${message}`)
-    // client.emit('message', message)
-    testRoom.broadcastMessage(message)
-    cb(null)
-  })
+  client.on('message', handleMessage)
 
   // client.on('rooms', handleGetRooms)
 
@@ -53,7 +50,7 @@ io.on('connection', function(client) {
 
   client.on('disconnect', function() {
     console.log('client disconnect...', client.id)
-    testRoom.removeMember(client)
+    roomManager.removeClient(client)
     // handleDisconnect()
   })
 

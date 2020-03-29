@@ -19,6 +19,8 @@ module.exports = function() {
   /**
    * Generates a new room with random key and adds it to the Map
    * Returns the newly created room.
+   *
+   * Takes an optional parameter for the new key to use
    */
   function createNewRoom(_roomKey) {
     let roomKey = _roomKey || undefined
