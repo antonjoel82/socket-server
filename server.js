@@ -23,6 +23,7 @@ io.on('connection', function(client) {
     handleRegister,
     handleJoin,
     handleNewRoom,
+    handleCurrentUser,
     //   handleLeave,
     handleMessage
     //   handleGetRooms,
@@ -47,6 +48,8 @@ io.on('connection', function(client) {
   // client.on('rooms', handleGetRooms)
 
   // client.on('availableUsers', handleGetAvailableUsers)
+
+  client.on('currentUser', handleCurrentUser)
 
   client.on('disconnect', function() {
     console.log('client disconnect...', client.id)

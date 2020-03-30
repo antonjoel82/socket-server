@@ -1,7 +1,8 @@
 function makeHandleEvent(client, clientManager, roomManager) {
-  function ensureUserSelected(clientId) {
+  function ensureUserExists(clientId) {
     return ensureExists(
       () => clientManager.getUserByClientId(clientId),
+      `Could not find a corresponding user.`,
       `No user is associated with client ${clientId}`
     )
   }
@@ -9,6 +10,7 @@ function makeHandleEvent(client, clientManager, roomManager) {
   function ensureValidRoom(roomKey) {
     return ensureExists(
       () => roomManager.getRoom(roomKey),
+      `You attempted to access non-existent room ${roomKey}.`,
       `Client ${client.id} attempted to access non-existent room ${roomKey}.`
     )
   }
@@ -16,7 +18,7 @@ function makeHandleEvent(client, clientManager, roomManager) {
   function ensureValidRoomAndUserSelected(roomKey) {
     return Promise.all([
       ensureValidRoom(roomKey),
-      ensureUserSelected(client.id)
+      ensureUserExists(client.id)
     ]).then(([room, user]) => Promise.resolve({ room, user }))
   }
 
@@ -35,7 +37,10 @@ function makeHandleEvent(client, clientManager, roomManager) {
     })
   }
 
-  return handleEvent
+  return {
+    handleEvent,
+    ensureUserExists
+  }
 }
 
 /**

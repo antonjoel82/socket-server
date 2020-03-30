@@ -2,9 +2,10 @@ module.exports = function() {
   // clientId => { client, }
   const clients = new Map()
 
-  function createUser(username) {
+  function createUser(username, clientId) {
     return {
-      name: username
+      name: username,
+      clientId
     }
   }
 
