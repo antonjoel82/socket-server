@@ -40,7 +40,18 @@ module.exports = function() {
    * @param {} client
    */
   function removeClient(client) {
-    rooms.forEach((room) => room.removeMember(client))
+    rooms.forEach((room) => room.removeMember(client.id))
+  }
+
+  function getRoomsForClient(clientId) {
+    const filteredRooms = []
+    rooms.forEach((room) => {
+      if (room.hasMember(clientId)) {
+        filteredRooms.push(room)
+      }
+    })
+
+    return filteredRooms
   }
 
   function serializeRooms() {
@@ -51,6 +62,7 @@ module.exports = function() {
     addRoom,
     removeRoom,
     getRoom,
+    getRoomsForClient,
     createNewRoom,
     removeClient,
     serializeRooms

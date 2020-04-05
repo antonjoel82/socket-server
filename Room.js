@@ -10,12 +10,16 @@ module.exports = function(key) {
     return key
   }
 
-  /**
-   * TODO! All members get all messages and individual rooms don't remember their histories
-   */
-
   function broadcastMessage(message) {
-    members.forEach((member) => member.emit('message', message))
+    broadcastAction('message', message)
+  }
+
+  function broadcastAction(action, content) {
+    console.log(`Emitting action [${action}] for ${getKey()}`)
+    members.forEach((member) => {
+      // console.log(`Emitting action [${action}] for ${JSON.stringify(member)}`)
+      return member.emit(action, content)
+    })
   }
 
   function addEntry(entry) {
@@ -30,8 +34,12 @@ module.exports = function(key) {
     members.set(client.id, client)
   }
 
-  function removeMember(client) {
-    members.delete(client.id)
+  function removeMember(clientId) {
+    members.delete(clientId)
+  }
+
+  function hasMember(clientId) {
+    return members.has(clientId)
   }
 
   function serialize() {
@@ -44,9 +52,11 @@ module.exports = function(key) {
   return {
     getKey,
     broadcastMessage,
+    broadcastAction,
     addEntry,
     getChatHistory,
     addMember,
+    hasMember,
     removeMember,
     serialize
   }

@@ -1,3 +1,8 @@
+const EventTypes = {
+  MESSAGE: 'message',
+  SYSTEM: 'system'
+}
+
 function makeHandleEvent(client, clientManager, roomManager) {
   function ensureUserExists(clientId) {
     return ensureExists(
@@ -37,8 +42,26 @@ function makeHandleEvent(client, clientManager, roomManager) {
     })
   }
 
+  function handleTimerEvent(roomKey, timerAction) {
+    return ensureValidRoomAndUserSelected(roomKey).then(function({
+      room,
+      user
+    }) {
+      // append event to chat history
+      const entry = { user, ...timerAction, type: EventTypes.SYSTEM }
+      room.addEntry(entry)
+
+      // console.log(`TimerEvent: ${JSON.stringify(entry)}`)
+
+      // Relay the message to everyone in the room.
+      room.broadcastAction(timerAction.action, entry)
+      return room
+    })
+  }
+
   return {
     handleEvent,
+    handleTimerEvent,
     ensureUserExists
   }
 }
@@ -63,5 +86,6 @@ function ensureExists(getter, rejectionMsg, logError) {
 
 module.exports = {
   ensureExists,
-  makeHandleEvent
+  makeHandleEvent,
+  EventTypes
 }

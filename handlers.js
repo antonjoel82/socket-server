@@ -1,9 +1,4 @@
-const { makeHandleEvent, ensureExists } = require('./handle-events')
-
-const EventType = {
-  MESSAGE: 'message',
-  SYSTEM: 'system'
-}
+const { makeHandleEvent, ensureExists, EventTypes } = require('./handle-events')
 
 module.exports = function(client, clientManager, roomManager) {
   const { handleEvent, ensureUserExists } = makeHandleEvent(
@@ -15,7 +10,8 @@ module.exports = function(client, clientManager, roomManager) {
   function handleRegister(username, cb) {
     if (clientManager.hasClient(client.id)) {
       console.warn(`Client ${client.id} is already registered.`)
-      return cb('You have already registered!')
+      return cb(null, clientManager.getUserByClientId(client.id))
+      // return cb('You have already registered!')
     }
 
     const user = clientManager.createUser(username, client.id)
@@ -27,7 +23,7 @@ module.exports = function(client, clientManager, roomManager) {
   function handleJoin(roomKey, cb) {
     const createEntry = () => ({
       event: `joined the room!`,
-      type: EventType.SYSTEM
+      type: EventTypes.SYSTEM
     })
 
     handleEvent(roomKey, createEntry)
@@ -37,6 +33,23 @@ module.exports = function(client, clientManager, roomManager) {
         console.log(`${client.id} joined room '${roomKey}'`)
 
         return cb(null, room.getChatHistory())
+      })
+      .catch(cb)
+  }
+
+  function handleLeave(roomKey, cb) {
+    const createEntry = () => ({
+      event: `left the room.`,
+      type: EventTypes.SYSTEM
+    })
+
+    handleEvent(roomKey, createEntry)
+      .then((room) => {
+        // Remove the client from the room
+        room.removeMember(client.id)
+        console.log(`${client.id} left room '${roomKey}'`)
+
+        return cb(null)
       })
       .catch(cb)
   }
@@ -59,7 +72,7 @@ module.exports = function(client, clientManager, roomManager) {
     const { roomKey, message } = params
     console.log(`Message from ${client.id} in Room '${roomKey}': ${message}`)
 
-    const createEntry = () => ({ event: message, type: EventType.MESSAGE })
+    const createEntry = () => ({ event: message, type: EventTypes.MESSAGE })
 
     handleEvent(roomKey, createEntry)
       .then(() => cb(null))
@@ -72,12 +85,25 @@ module.exports = function(client, clientManager, roomManager) {
       .catch(cb)
   }
 
+  function handleDisconnect() {
+    roomManager.getRoomsForClient(client.id).forEach((room) => {
+      handleLeave(room.getKey(), () => {})
+    })
+
+    // remove user profile
+    clientManager.removeClient(client)
+    // remove member from all chatrooms
+    roomManager.removeClient(client)
+  }
+
   return {
     handleRegister,
     handleCurrentUser,
     handleJoin,
+    handleLeave,
     handleNewRoom,
     handleMessage,
-    handleEvent
+    handleEvent,
+    handleDisconnect
   }
 }
