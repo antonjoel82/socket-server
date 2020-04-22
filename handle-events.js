@@ -1,6 +1,6 @@
 const EventTypes = {
   MESSAGE: 'message',
-  SYSTEM: 'system'
+  SYSTEM: 'system',
 }
 
 function makeHandleEvent(client, clientManager, roomManager) {
@@ -23,14 +23,14 @@ function makeHandleEvent(client, clientManager, roomManager) {
   function ensureValidRoomAndUserSelected(roomKey) {
     return Promise.all([
       ensureValidRoom(roomKey),
-      ensureUserExists(client.id)
+      ensureUserExists(client.id),
     ]).then(([room, user]) => Promise.resolve({ room, user }))
   }
 
   function handleEvent(roomKey, createEntry) {
-    return ensureValidRoomAndUserSelected(roomKey).then(function({
+    return ensureValidRoomAndUserSelected(roomKey).then(function ({
       room,
-      user
+      user,
     }) {
       // append event to chat history
       const entry = { user, ...createEntry() }
@@ -43,9 +43,9 @@ function makeHandleEvent(client, clientManager, roomManager) {
   }
 
   function handleTimerEvent(roomKey, timerAction) {
-    return ensureValidRoomAndUserSelected(roomKey).then(function({
+    return ensureValidRoomAndUserSelected(roomKey).then(function ({
       room,
-      user
+      user,
     }) {
       // append event to chat history
       const entry = { user, ...timerAction, type: EventTypes.SYSTEM }
@@ -53,8 +53,12 @@ function makeHandleEvent(client, clientManager, roomManager) {
 
       // console.log(`TimerEvent: ${JSON.stringify(entry)}`)
 
-      // Relay the message to everyone in the room.
-      room.broadcastAction(timerAction.action, entry)
+      // Relay the action to everyone in the room.
+      room.broadcastAction(
+        timerAction.action,
+        entry,
+        timerAction.shouldTriggerMessage
+      )
       return room
     })
   }
@@ -62,7 +66,7 @@ function makeHandleEvent(client, clientManager, roomManager) {
   return {
     handleEvent,
     handleTimerEvent,
-    ensureUserExists
+    ensureUserExists,
   }
 }
 
@@ -73,7 +77,7 @@ function makeHandleEvent(client, clientManager, roomManager) {
  * @param {string?} logError Optional: error to be used in logs, but not user-facing
  */
 function ensureExists(getter, rejectionMsg, logError) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const res = getter()
     if (!res) {
       console.error(logError || rejectionMsg)
@@ -87,5 +91,5 @@ function ensureExists(getter, rejectionMsg, logError) {
 module.exports = {
   ensureExists,
   makeHandleEvent,
-  EventTypes
+  EventTypes,
 }

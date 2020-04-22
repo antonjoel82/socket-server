@@ -2,7 +2,7 @@
  *
  * @param {*} key unique identifier of the room
  */
-module.exports = function(key) {
+module.exports = function (key) {
   const members = new Map()
   let chatHistory = []
 
@@ -11,13 +11,19 @@ module.exports = function(key) {
   }
 
   function broadcastMessage(message) {
-    broadcastAction('message', message)
+    broadcastAction('message', message, false)
   }
 
-  function broadcastAction(action, content) {
+  function broadcastAction(action, content, shouldEmitMessage = true) {
     console.log(`Emitting action [${action}] for ${getKey()}`)
     members.forEach((member) => {
       // console.log(`Emitting action [${action}] for ${JSON.stringify(member)}`)
+
+      // Prevent message actions from double-emitting
+      if (shouldEmitMessage && action !== 'message') {
+        member.emit('message', content)
+      }
+
       return member.emit(action, content)
     })
   }
@@ -45,7 +51,7 @@ module.exports = function(key) {
   function serialize() {
     return {
       key,
-      numMembers: members.size
+      numMembers: members.size,
     }
   }
 
@@ -58,6 +64,6 @@ module.exports = function(key) {
     addMember,
     hasMember,
     removeMember,
-    serialize
+    serialize,
   }
 }
